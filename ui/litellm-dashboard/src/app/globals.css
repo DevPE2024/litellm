@@ -9,13 +9,21 @@
   --neutral-border: #dcddeb;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-} */
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 15, 23, 42;
+  --background-end-rgb: 15, 23, 42;
+  --neutral-border: #374151;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background: rgb(var(--background-start-rgb));
+  color: rgb(var(--foreground-rgb));
+}
 
 body {
   color: rgb(var(--foreground-rgb));
