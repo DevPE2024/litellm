@@ -6,10 +6,6 @@ import litellm
 from litellm._logging import verbose_logger
 from litellm.integrations.custom_logger import CustomLogger
 
-from .cz_stream_api import CloudZeroStreamer
-from .database import LiteLLMDatabase
-from .transform import CBFTransformer
-
 if TYPE_CHECKING:
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
 else:
@@ -105,6 +101,9 @@ class CloudZeroLogger(CustomLogger):
             limit: Optional limit on number of records to export
             operation: CloudZero operation type ("replace_hourly" or "sum")
         """
+        from litellm.integrations.cloudzero.cz_stream_api import CloudZeroStreamer
+        from litellm.integrations.cloudzero.database import LiteLLMDatabase
+        from litellm.integrations.cloudzero.transform import CBFTransformer
         try:
             verbose_logger.debug("CloudZero Logger: Starting usage data export")
             
@@ -124,7 +123,7 @@ class CloudZeroLogger(CustomLogger):
             )
             
             if data.is_empty():
-                verbose_logger.info("CloudZero Logger: No usage data found to export")
+                verbose_logger.debug("CloudZero Logger: No usage data found to export")
                 return
 
             verbose_logger.debug(f"CloudZero Logger: Processing {len(data)} records")
@@ -147,7 +146,7 @@ class CloudZeroLogger(CustomLogger):
             verbose_logger.debug(f"CloudZero Logger: Transmitting {len(cbf_data)} records to CloudZero")
             streamer.send_batched(cbf_data, operation=operation)
             
-            verbose_logger.info(f"CloudZero Logger: Successfully exported {len(cbf_data)} records to CloudZero")
+            verbose_logger.debug(f"CloudZero Logger: Successfully exported {len(cbf_data)} records to CloudZero")
             
         except Exception as e:
             verbose_logger.error(f"CloudZero Logger: Error exporting usage data: {str(e)}")
@@ -163,6 +162,8 @@ class CloudZeroLogger(CustomLogger):
         Returns:
             dict: Contains usage_data, cbf_data, and summary statistics
         """
+        from litellm.integrations.cloudzero.database import LiteLLMDatabase
+        from litellm.integrations.cloudzero.transform import CBFTransformer
         try:
             verbose_logger.debug("CloudZero Logger: Starting dry run export")
             
@@ -217,7 +218,7 @@ class CloudZeroLogger(CustomLogger):
             unique_services = len(set(record.get('resource/service', '') for record in cbf_data_dict if record.get('resource/service')))
             total_tokens = sum(record.get('usage/amount', 0) for record in cbf_data_dict)
             
-            verbose_logger.info(f"CloudZero Logger: Dry run completed for {len(cbf_data)} records")
+            verbose_logger.debug(f"CloudZero Logger: Dry run completed for {len(cbf_data)} records")
             
             return {
                 "usage_data": usage_data_sample,
