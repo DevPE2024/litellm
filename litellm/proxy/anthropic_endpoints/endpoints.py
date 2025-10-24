@@ -120,7 +120,7 @@ async def anthropic_response(  # noqa: PLR0915
         ):  # model in router deployments, calling a specific deployment on the router
             llm_coro = llm_router.aanthropic_messages(**data, specific_deployment=True)
         elif (
-            llm_router is not None and data["model"] in llm_router.get_model_ids()
+            llm_router is not None and llm_router.has_model_id(data["model"])
         ):  # model in router model list
             llm_coro = llm_router.aanthropic_messages(**data)
         elif (
@@ -205,7 +205,7 @@ async def anthropic_response(  # noqa: PLR0915
             data=data, user_api_key_dict=user_api_key_dict, response=response # type: ignore
         )
 
-        verbose_proxy_logger.info("\nResponse from Litellm:\n{}".format(response))
+        verbose_proxy_logger.debug("\nResponse from Litellm:\n{}".format(response))
         return response
     except Exception as e:
         await proxy_logging_obj.post_call_failure_hook(
